@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Data\MongoDB\**" />
+    <Compile Remove="Data\PostgreSQL\**" />
+    <Compile Remove="Data\SQLServer\**" />
+    <EmbeddedResource Remove="Data\MongoDB\**" />
+    <EmbeddedResource Remove="Data\PostgreSQL\**" />
+    <EmbeddedResource Remove="Data\SQLServer\**" />
+    <None Remove="Data\MongoDB\**" />
+    <None Remove="Data\PostgreSQL\**" />
+    <None Remove="Data\SQLServer\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.10" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.10" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Template.CleanArchitecture.Application\Template.CleanArchitecture.Application.csproj" />
+    <ProjectReference Include="..\Template.CleanArchitecture.Domain\Template.CleanArchitecture.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
