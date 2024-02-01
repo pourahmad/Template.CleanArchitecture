@@ -1,0 +1,90 @@
+﻿@page "/genre"
+@using System.Text
+@using Newtonsoft.Json
+
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" 
+Gap="0.5rem" Class="rz-p-4 rz-mb-6 rz-border-radius-1" 
+Style="border: var(--rz-grid-cell-border);">
+    <RadzenLabel Text="Genre:" />
+    <RadzenAutoComplete @bind-Value=@GenreName Style="width: 40rem" />
+    <RadzenButton Click="OnAppendGenreAsync" Text="Append" ButtonStyle="ButtonStyle.Secondary" />
+</RadzenStack>
+
+<RadzenDataGrid AllowFiltering="true" AllowColumnResize="true" AllowAlternatingRows="false"
+                FilterMode="FilterMode.Advanced" AllowSorting="true" PageSize="7" AllowPaging="true"
+                PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+                Data="@genres" TItem="GenreVm" ColumnWidth="300px"
+                LogicalFilterOperator="LogicalFilterOperator.Or">
+    <Columns>
+        <RadzenDataGridColumn TItem="GenreVm" Property="Id" Filterable="false" Title="Id"
+                                Frozen="true" Width="10%" TextAlign="TextAlign.Center" />
+        <RadzenDataGridColumn TItem="GenreVm" Property="Name" Title="Genre" Width="65%" />
+
+        <RadzenDataGridColumn TItem="GenreVm" Property="Id" Filterable="false" Sortable="false" Title="">
+            <Template Context="data">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" Variant="Variant.Flat" Shade="Shade.Light"
+                                Text="Update" Icon="cached" class="m-1"
+                                Click=@(() => OnUpdateGenreAsync(data.Id)) />
+                <RadzenButton ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Shade="Shade.Dark"
+                                Icon="delete" class="m-1" Text="Remove"
+                                Click=@(() => OnRemoveGenreAsync(data.Id)) />
+            </Template>
+        </RadzenDataGridColumn>
+
+    </Columns>
+</RadzenDataGrid>
+
+
+@code {
+    [Inject]
+    public HttpClient httpClient { get; set; } = new HttpClient();
+    public List<GenreVm> genres { get; set; } = new List<GenreVm>();
+
+    [Parameter]
+    public string GenreName { get; set; } = string.Empty;
+
+    [Parameter]
+    public string ShowErrorMassege { get; set; } = string.Empty;
+
+    [Parameter]
+    public string ErrorMassegeContent { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var data = await httpClient.GetFromJsonAsync<List<GenreVm>>("Genre") ?? new List<GenreVm>();
+        genres = data.ToList();
+    }
+
+    private async Task OnAppendGenreAsync()
+    {
+        GenreVm genre = new GenreVm { Name = GenreName };
+        var result = await httpClient.PostAsJsonAsync<GenreVm>("Genre", genre);
+        if (result.IsSuccessStatusCode)
+            await OnInitializedAsync();
+    }
+
+    private async Task OnUpdateGenreAsync(int id)
+    {
+        GenreVm genre = genres.Where(w => w.Id == id).First();
+        if (genre is not null)
+        {
+            var result = await httpClient.PutAsJsonAsync<GenreVm>("Genre", genre);
+            if (result.IsSuccessStatusCode)
+                await OnInitializedAsync();
+        }        
+    }
+
+    private async Task OnRemoveGenreAsync(int id)
+    {
+        var request = new HttpRequestMessage();
+        request.Method = HttpMethod.Delete;
+        request.RequestUri = new Uri($"{httpClient.BaseAddress}Genre");
+
+        GenreVm genre = genres.Where(w => w.Id == id).First();
+        request.Content = new StringContent(JsonConvert.SerializeObject(genre), Encoding.UTF8, "application/json");
+
+        var result = await httpClient.SendAsync(request);
+        if (result.IsSuccessStatusCode)
+            await OnInitializedAsync();
+    }
+}

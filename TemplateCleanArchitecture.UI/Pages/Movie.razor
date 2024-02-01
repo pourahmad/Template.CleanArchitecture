@@ -1,0 +1,111 @@
+﻿@page "/movie"
+
+<div Style="border: var(--rz-grid-cell-border); margin-bottom:10px; padding: 10px;">
+    <RadzenRow>
+        <RadzenColumn SizeMD="4">
+            <RadzenDropDown @bind-Value="@(genreSelected)" TValue="int" Data=@(genres) TextProperty="@(nameof(GenreVm.Name))"
+                            ValueProperty="@(nameof(GenreVm.Id))" Change="@(args => OnGenreChange((int)args))"
+                            Style="width: 100%; max-width: 400px;" Name="DropDownTextValueProperties" />
+        </RadzenColumn>
+        <RadzenColumn SizeMD="4">
+            <RadzenAutoComplete @bind-Value=@MovieName Style="width:inherit;" Placeholder="Name ..." />
+        </RadzenColumn>
+        <RadzenColumn SizeMD="4">
+            <RadzenAutoComplete @bind-Value=@MovieLanguage Style="width:inherit;" Placeholder="Languge ..." />
+        </RadzenColumn>
+    </RadzenRow>
+
+    <RadzenRow>
+        <RadzenColumn Size="12">
+            <RadzenTextArea @bind-Value=@MovieDescription class="w-100" aria-label="TextArea" Placeholder="Description ..." />
+        </RadzenColumn>
+    </RadzenRow>
+
+    <RadzenRow>
+        <RadzenColumn Size="12">
+            <RadzenButton Text="Append Movie" Click=@OnAppendMovieAsync ButtonStyle="ButtonStyle.Primary" />
+        </RadzenColumn>
+    </RadzenRow>
+</div>
+
+<div Style="border: var(--rz-grid-cell-border); margin-bottom:10px; padding: 10px;">
+    <RadzenRow>
+        @foreach (var movie in movies)
+        {
+            <RadzenColumn SizeMD="4">
+                <RadzenCard Class="rz-my-1 rz-mx-auto" Style="max-width: 420px">
+
+                    @{
+                        string imageName = "homeImage";
+                        if (movie.Id < 5)
+                            imageName = movie.Id.ToString();
+                    }
+                    <RadzenImage Path="@($"/Images/{imageName}.jpg")" Style="width: 100%; height: 150px;" />
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Start" Gap="1rem" Class="rz-p-4">
+                        <RadzenStack Gap="0">
+
+                            <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Name</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body1"><b>@(movie.Name)</b></RadzenText>
+
+                            <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Rating</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body1"><b>@(movie.Rating)</b></RadzenText>
+
+                            <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Description</RadzenText>
+                            <RadzenText TextStyle="TextStyle.Body1"><b>@(movie.Description.ToString().Substring(0, 60)) ...</b></RadzenText>
+
+                        </RadzenStack>
+                    </RadzenStack>
+
+                </RadzenCard>
+            </RadzenColumn>
+        }
+    </RadzenRow>
+</div>
+
+
+@code {
+    [Inject]
+    public HttpClient httpClient { get; set; } = new HttpClient();
+    public List<MovieVm> movies { get; set; } = new List<MovieVm>();
+    public List<GenreVm> genres { get; set; } = new List<GenreVm>();
+
+    int genreSelected = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var genersList = await httpClient.GetFromJsonAsync<List<GenreVm>>("Genre") ?? new List<GenreVm>();
+        genres = genersList.ToList();
+
+        var moviesList = await httpClient.GetFromJsonAsync<List<MovieVm>>("Movie") ?? new List<MovieVm>();
+        movies = moviesList.ToList();
+    }
+
+    [Parameter]
+    public string MovieName { get; set; } = string.Empty;
+
+    [Parameter]
+    public string MovieLanguage { get; set; } = string.Empty;
+
+    [Parameter]
+    public string MovieDescription { get; set; } = string.Empty;
+
+
+    private void OnGenreChange(int newValue)
+    {
+        genreSelected = newValue;
+    }
+
+    private async Task OnAppendMovieAsync()
+    {
+        MovieVm movie = new MovieVm
+            {
+                GenreId = genreSelected,
+                Name = MovieName,
+                Language = MovieLanguage,
+                Description = MovieDescription,
+            };
+        var result = await httpClient.PostAsJsonAsync<MovieVm>("Movie", movie);
+        if (result.IsSuccessStatusCode)
+            await OnInitializedAsync();
+    }
+}

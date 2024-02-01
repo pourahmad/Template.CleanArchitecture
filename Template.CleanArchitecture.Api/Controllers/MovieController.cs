@@ -12,7 +12,7 @@ using Template.CleanArchitecture.Application.Features.Movies.Queries.GetMovieWit
 
 namespace Template.CleanArchitecture.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class MovieController : ControllerBase
     {

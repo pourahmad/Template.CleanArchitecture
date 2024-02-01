@@ -4,7 +4,7 @@ using Template.CleanArchitecture.Domain.Entities;
 
 namespace Template.CleanArchitecture.Persistence.Data
 {
-    public partial class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : DbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {

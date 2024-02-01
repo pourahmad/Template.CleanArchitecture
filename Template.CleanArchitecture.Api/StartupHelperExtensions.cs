@@ -1,14 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
+﻿using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Serialization;
 using Template.CleanArchitecture.Application;
 using Template.CleanArchitecture.Infrastructure;
 using Template.CleanArchitecture.Persistence;
-using Template.CleanArchitecture.Persistence.Data;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Formatters;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Newtonsoft.Json.Serialization;
-using Template.CleanArchitecture.Api.Middlewares;
 
 namespace Template.CleanArchitecture.Api
 {
@@ -32,10 +26,10 @@ namespace Template.CleanArchitecture.Api
                         new CamelCasePropertyNamesContractResolver();
                 });
 
-            //builder.Services.AddCors(options =>
-            //{
-            //    options.AddPolicy("AllowAll", builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
-            //});
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll", builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+            });
 
             builder.Services.AddCors();
 
@@ -74,7 +68,7 @@ namespace Template.CleanArchitecture.Api
 
             //    app.UseCustomExceptionHandler();
 
-            //app.UseCors("AllowAll");
+            app.UseCors("AllowAll");
 
 
             //app.UseCorsAccessControllMiddleware();

@@ -13,7 +13,8 @@ namespace Template.CleanArchitecture.Persistence
         {
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("SQLServerConnectionString"));
+                //options.UseSqlServer(configuration.GetConnectionString("SQLServerConnectionString"));
+                options.UseSqlite(configuration.GetConnectionString("SQLiteConnectionString"));
             });
 
             services.AddScoped(typeof(IAsyncRepository<>), typeof(BaseRepository<>));

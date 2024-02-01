@@ -9,7 +9,7 @@ using Template.CleanArchitecture.Application.Features.Genres.Queries.GetGenreWit
 
 namespace Template.CleanArchitecture.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class GenreController : ControllerBase
     {
