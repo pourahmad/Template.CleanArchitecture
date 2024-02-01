@@ -1,0 +1,49 @@
+﻿@page "/GenrePage/Genre1"
+@using TemplateCleanArchitecture.App.Models;
+
+<PageTitle>Genre</PageTitle>
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit" >
+    <DataAnnotationsValidator />
+    <MudGrid>
+        <MudItem xs="12" sm="12">
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField Label="Genre name" HelperText="Genre name shode must between 3 - 50 character"
+                    @bind-Value="model.Name" For="@(() => model.Name)" />
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Seve</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</EditForm>
+
+@if (genres == null)
+{
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+}
+else
+{
+    <MudPaper Class="pa-2" Elevation="3">
+        <MudTable Items="genres" Hover="true" SortLabel="Sort By" Elevation="0" Color="@Color.Primary">
+            <HeaderContent>
+                <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<GenreVm, object>(x=>x.Id)">Id</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<GenreVm, object>(x=>x.Name)">Name</MudTableSortLabel></MudTh>
+                <MudTh></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.Id</MudTd>
+                <MudTd>@context.Name</MudTd>
+                <MudTd><MudIconButton Icon="@Icons.Material.Filled.Delete" 
+                    Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small"
+                                   OnClick="() => OnDeleteGenreAsync(context.Id)" />
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager PageSizeOptions="new int[]{10,20,30,40,50,100}" />
+            </PagerContent>
+        </MudTable>
+    </MudPaper>
+}

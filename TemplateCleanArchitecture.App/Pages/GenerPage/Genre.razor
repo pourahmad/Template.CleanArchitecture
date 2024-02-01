@@ -1,0 +1,64 @@
+﻿@page "/GenrePage/Genre"
+@using TemplateCleanArchitecture.App.Models;
+
+<PageTitle>Genre</PageTitle>
+
+<MudItem style="margin-bottom:10px;">
+    <MudGrid>
+        <MudItem xs="12" sm="6" md="6">
+            <MudTextField @bind-Value="GenreName" Label="Genre name" Variant="Variant.Text"></MudTextField>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="6">
+            <MudButton Disabled="@_processing" OnClick="OnSeveGenre" Variant="Variant.Filled" Color="Color.Info">
+                @if (_processing)
+                {
+                    <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                    <MudText Class="ms-2">Processing</MudText>
+                }
+                else
+                {
+                    <MudText>Seve</MudText>
+                }
+            </MudButton>
+        </MudItem>        
+    </MudGrid>
+</MudItem>
+
+@if (ShowErrorMassege == "isNotSuccess" && showLeaveAlert)
+{
+    <MudAlert Severity="Severity.Error" ContentAlignment="HorizontalAlignment.Center" ShowCloseIcon="true" CloseIconClicked="(() => CloseAlert())">@ErrorMassegeContent</MudAlert>
+}
+else if (ShowErrorMassege == "isWorning" && showLeaveAlert)
+{
+    <MudAlert Severity="Severity.Warning" ContentAlignment="HorizontalAlignment.Center" ShowCloseIcon="true" CloseIconClicked="(() => CloseAlert())">@ErrorMassegeContent</MudAlert>
+}
+else if (ShowErrorMassege == "isSuccess" && showLeaveAlert)
+{
+    <MudAlert Severity="Severity.Success" ContentAlignment="HorizontalAlignment.Center" ShowCloseIcon="true" CloseIconClicked="(() => CloseAlert())">@ErrorMassegeContent</MudAlert>
+}
+
+@if (genres == null)
+{
+    <MudProgressCircular Color="Color.Secondary" Indeterminate="true" />
+}
+else
+{
+    <MudTable Items="genres" Hover="true" SortLabel="Sort By" Elevation="0">
+        <HeaderContent>
+            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<GenreVm, object>(x=>x.Id)">Id</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<GenreVm, object>(x=>x.Name)">Name</MudTableSortLabel></MudTh>
+            <MudTh></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@context.Id</MudTd>
+            <MudTd>@context.Name</MudTd>
+            <MudTd><MudIconButton Icon="@Icons.Material.Filled.Delete" 
+                Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small"
+                               OnClick="() => OnDeleteGenre(context.Id)" />
+            </MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[]{10,20,30,40,50,100}" />
+        </PagerContent>
+    </MudTable>
+}
