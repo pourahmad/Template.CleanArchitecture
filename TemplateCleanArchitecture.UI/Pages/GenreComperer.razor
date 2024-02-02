@@ -1,0 +1,31 @@
+﻿@page "/genrecomperer"
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12 col-lg-6 offset-lg-3 my-5">
+            <RadzenChart>
+                <RadzenPieSeries Data=@genres Title="Count" CategoryProperty="Name" ValueProperty="Count">
+                    <RadzenSeriesDataLabels Visible="@false"/>
+                </RadzenPieSeries>
+            </RadzenChart>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Inject]
+    public HttpClient httpClient { get; set; } = new HttpClient();
+
+    private class DataItem
+    {
+        public string Name { get; set; }
+        public double Count { get; set; }
+    }
+
+    DataItem[] genres;
+    protected override async Task OnInitializedAsync()
+    {
+        var data = await httpClient.GetFromJsonAsync<List<DataItem>>("GetGenreUsed") ?? new List<DataItem>();
+        genres = data.ToArray();
+    }
+}

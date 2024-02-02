@@ -31,6 +31,16 @@ namespace Template.CleanArchitecture.Api.Controllers
             return Ok(genres);
         }
 
+        [HttpGet]
+        [Route("/GetGenreUsed")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<GenreListUsedVm>>> GetGenreUsed()
+        {
+            var genres = await _mediator.Send(new GetGenresListUsedQuery());
+            return Ok(genres);
+        }
+
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

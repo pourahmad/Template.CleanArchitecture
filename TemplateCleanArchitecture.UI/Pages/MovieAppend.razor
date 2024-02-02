@@ -1,0 +1,87 @@
+﻿@page "/movieappend"
+
+<div Style="border: var(--rz-grid-cell-border); margin-bottom:10px; padding: 10px;">
+    <RadzenRow>
+        <RadzenColumn SizeMD="4">
+            <RadzenLabel>Select genre:</RadzenLabel>
+            <RadzenDropDown @bind-Value="@(genreSelected)" TValue="int" Data=@(genres) TextProperty="@(nameof(GenreVm.Name))"
+                            ValueProperty="@(nameof(GenreVm.Id))" Change="@(args => OnGenreChange((int)args))"
+                            Style="width: 100%; max-width: 400px;" Name="DropDownTextValueProperties" />
+        </RadzenColumn>
+        <RadzenColumn SizeMD="4">
+            <RadzenLabel>Insert Movie Name:</RadzenLabel>
+            <RadzenAutoComplete @bind-Value=@MovieName Style="width:inherit;" Placeholder="Name ..." />
+        </RadzenColumn>
+        <RadzenColumn SizeMD="4">
+            <RadzenLabel>Insert Movie Languge:</RadzenLabel>
+            <RadzenAutoComplete @bind-Value=@MovieLanguage Style="width:inherit;" Placeholder="Languge ..." />
+        </RadzenColumn>
+    </RadzenRow>
+
+    <RadzenRow>
+        <RadzenColumn SizeMD="12">
+            <RadzenLabel>Insert Description:</RadzenLabel>
+            <RadzenTextArea @bind-Value=@MovieDescription class="w-100" aria-label="TextArea" Style="height:300px;"
+            Placeholder="Description ..." />
+        </RadzenColumn>
+    </RadzenRow>
+
+    <RadzenRow>
+        <RadzenColumn Size="12">
+            <RadzenButton Text="Append Movie" Click=@OnAppendMovieAsync ButtonStyle="ButtonStyle.Primary" />
+        </RadzenColumn>
+    </RadzenRow>
+</div>
+<RadzenAlert Variant="@Variant.Filled" AlertStyle=@AlertStyle.Primary
+             Size=@AlertSize.Medium Shade="Shade.Lighter" AllowClose=true>    @alertResponse
+</RadzenAlert>
+
+
+@code {
+    [Inject]
+    public HttpClient httpClient { get; set; } = new HttpClient();
+    public List<MovieVm> movies { get; set; } = new List<MovieVm>();
+    public List<GenreVm> genres { get; set; } = new List<GenreVm>();
+
+    int genreSelected = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var genersList = await httpClient.GetFromJsonAsync<List<GenreVm>>("Genre") ?? new List<GenreVm>();
+        genres = genersList.ToList();
+
+        var moviesList = await httpClient.GetFromJsonAsync<List<MovieVm>>("Movie") ?? new List<MovieVm>();
+        movies = moviesList.ToList();
+    }
+
+    [Parameter]
+    public string MovieName { get; set; } = string.Empty;
+
+    [Parameter]
+    public string MovieLanguage { get; set; } = string.Empty;
+
+    [Parameter]
+    public string MovieDescription { get; set; } = string.Empty;
+
+    string alertResponse = "";
+    private void OnGenreChange(int newValue)
+    {
+        genreSelected = newValue;
+    }
+
+    private async Task OnAppendMovieAsync()
+    {
+        MovieVm movie = new MovieVm
+            {
+                GenreId = genreSelected,
+                Name = MovieName,
+                Language = MovieLanguage,
+                Description = MovieDescription,
+            };
+        var result = await httpClient.PostAsJsonAsync<MovieVm>("Movie", movie);
+        if (result.IsSuccessStatusCode)
+            await OnInitializedAsync();
+        else
+            alertResponse = "Movie was not insert!";
+    }
+}
